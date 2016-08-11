@@ -117,6 +117,9 @@ nova_service_user_name: nova
 nova_bin: "/openstack/venvs/nova-{{ nova_venv_tag }}/bin"
 nova_venv_tag: "testing"
 nova_virt_type: qemu
+# For the purposes of testing, RetryFilter is removed.
+# This is simply to output more boot failure information during failed tests
+nova_scheduler_default_filters: "AvailabilityZoneFilter,RamFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,AggregateCoreFilter,AggregateDiskFilter"
 openrc_os_auth_url: "http://127.0.0.1:5000/v3"
 openrc_os_domain_name: "Default"
 openrc_os_password: "{{ keystone_auth_admin_password }}"
