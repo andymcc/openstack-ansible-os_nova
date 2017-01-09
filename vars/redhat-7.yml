@@ -55,6 +55,12 @@ nova_compute_kvm_distro_packages:
   - sysfsutils
   - vconfig
 
+nova_apache_distro_packages:
+  - httpd
+  - httpd-tools
+  - mod_ssl
+  - mod_wsgi
+
 # TODO: add support for LXD on CentOS at some point.
 nova_compute_lxd_distro_packages: []
 
@@ -64,3 +70,9 @@ nova_compute_powervm_distro_packages: []
 novalink_gpg_keys: []
 
 rdo_package: "https://rdoproject.org/repos/rdo-release.rpm"
+
+nova_nginx_distro_packages:
+  - nginx
+
+nova_nginx_conf_path: "conf.d"
+nova_nginx_user_name: "nginx"

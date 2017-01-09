@@ -65,6 +65,13 @@
   tags:
     - nova-config
 
+- include: nova_placement.yml
+  when:
+    - nova_placement_service_enabled | bool
+    - inventory_hostname in groups['nova_api_placement']
+  tags:
+    - nova-placement
+
 - include: nova_compute.yml
   when: inventory_hostname in groups['nova_compute']
   tags:

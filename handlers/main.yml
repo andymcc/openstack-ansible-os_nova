@@ -31,3 +31,15 @@
   when:
     - inventory_hostname in groups[item.value.group]
     - "{{ item.value.condition | default(true) }}"
+
+- name: Restart Nginx
+  service:
+    name: nginx
+    state: restarted
+  register: nova_nginx_restart
+  until: nova_nginx_restart | success
+  retries: 5
+  delay: 2
+  when: inventory_hostname in groups['nova_api_placement']
+  tags:
+    - nova-config
