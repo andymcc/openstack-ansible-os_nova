@@ -29,25 +29,31 @@
   when:
     - nova_virt_type is defined
     - nova_virt_type not in nova_supported_virt_types
+    - inventory_hostname in groups['nova_all']
   tags:
     - always
 
 - include: nova_virt_detect.yml
   static: no
-  when: nova_virt_type is not defined
+  when:
+    - nova_virt_type is not defined
+    - inventory_hostname in groups['nova_all']
   tags:
     - always
     - nova-virt-detect
 
 - include: nova_pre_install.yml
+  when: inventory_hostname in groups['nova_all']
   tags:
     - nova-install
 
 - include: nova_install.yml
+  when: inventory_hostname in groups['nova_all']
   tags:
     - nova-install
 
 - include: nova_post_install.yml
+  when: inventory_hostname in groups['nova_all']
   tags:
     - nova-config
 
@@ -67,10 +73,15 @@
 
 - include: nova_placement.yml
   when:
-    - nova_placement_service_enabled | bool
     - inventory_hostname in groups['nova_api_placement']
   tags:
     - nova-placement
+
+- include: nova_nginx.yml
+  when:
+    - inventory_hostname in groups['nova_nginx']
+  tags:
+    - nova-config
 
 - include: nova_compute.yml
   when: inventory_hostname in groups['nova_compute']

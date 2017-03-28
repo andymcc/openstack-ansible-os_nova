@@ -276,8 +276,6 @@ nova_placement_service_internalurl: "{{ nova_placement_service_internaluri }}/pl
 ## Nova placement nginx & uwsgi settings
 nova_placement_nginx_access_log_format_combined: '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"'
 nova_placement_nginx_access_log_format_extras: '$request_time $upstream_response_time'
-nova_placement_nginx_extra_conf:
-  - keepalive_timeout   70;
 nova_placement_uwsgi_socket_port: 8781
 nova_wsgi_threads: 1
 ## Cap the maximum number of processes when a user value is unspecified.
@@ -553,3 +551,22 @@ lxd_storage_backend: dir
 #   Example:
 #     nova_pci_passthrough_whitelist: '{ "physical_network": "physnet1", "devname": "p1p1" }'
 nova_pci_passthrough_whitelist: {}
+
+nova_nginx_placement_sites:
+  nova_placement:
+    - listen {{ nova_placement_service_port }}
+    - keepalive_timeout 70
+    - access_log /var/log/nova/nova-placement-api-access.log custom
+    - error_log /var/log/nova/nova-placement-api-error.log info
+    - location /placement/ {
+        try_files $uri @nova-placement-api;
+      }
+    - location @nova-placement-api {
+        include uwsgi_params;
+        uwsgi_pass 127.0.0.1:{{ nova_placement_uwsgi_socket_port }};
+        uwsgi_param SCRIPT_NAME '/placement';
+        uwsgi_modifier1 30;
+      }
+
+nova_nginx_http_params:
+  - log_format custom '{{ nova_placement_nginx_access_log_format_combined }} {{ nova_placement_nginx_access_log_format_extras }}'

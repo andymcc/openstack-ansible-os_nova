@@ -93,6 +93,20 @@ openstack1
 [nova_api_placement]
 openstack1
 
+[nova_api_placement_nginx]
+openstack1
+
+[nova_api_os_compute_nginx]
+openstack1
+
+[nova_api_metadata_nginx]
+openstack1
+
+[nova_nginx:children]
+nova_api_metadata_nginx
+nova_api_os_compute_nginx
+nova_api_placement_nginx
+
 [nova_all:children]
 nova_api_metadata
 nova_api_os_compute
@@ -101,6 +115,10 @@ nova_conductor
 nova_console
 nova_scheduler
 nova_api_placement
+
+[nova_nginx_all:children]
+nova_all
+nova_nginx
 
 [utility_all]
 infra1

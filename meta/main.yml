@@ -34,3 +34,9 @@ dependencies:
   - apt_package_pinning
   - galera_client
   - openstack_openrc
+  - role: nginx
+    keep_only_specified: False
+    nginx_remove_sites:
+      - default
+    nginx_http_params: "{{ nginx_http_default_params + nova_nginx_http_params }}"
+    when: inventory_hostname in groups['nova_nginx']

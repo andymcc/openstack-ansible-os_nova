@@ -62,3 +62,7 @@
   src: https://git.openstack.org/openstack/openstack-ansible-os_nova
   scm: git
   version: stable/ocata
+- name: nginx
+  src: https://github.com/jdauphant/ansible-role-nginx
+  scm: git
+  version: v2.7.7

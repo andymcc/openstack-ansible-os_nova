@@ -33,10 +33,6 @@
     - nova-pip-packages
     - nova-install
 
-- include: nova_placement_nginx.yml
-  tags:
-    - nova-config
-
 - include: nova_placement_uwsgi.yml
   tags:
     - nova-config

@@ -18,39 +18,25 @@
     name: "{{ nova_nginx_user_name }}"
     groups: nova
     append: yes
+  when:
+    - inventory_hostname in groups['nova_api_placement']
   notify:
-    - Reload Nginx
+    - reload nginx
   tags:
     - nova-install
 
-- name: Disable default configuration
+- name: Create directory for logs when dedicated nginx host
   file:
-    path: /etc/nginx/sites-enabled/default
-    state: absent
-  notify:
-    - Reload Nginx
+    path: "/var/log/nova"
+    state: directory
+  when:
+    - inventory_hostname not in groups['nova_api_placement']
+  tags:
+    - nova-install
 
-- name: Configure custom nginx log format
-  lineinfile:
-    insertbefore: access_log
-    dest: "/etc/nginx/nginx.conf"
-    line: "log_format custom '{{ nova_placement_nginx_access_log_format_combined }} {{ nova_placement_nginx_access_log_format_extras }}';"
-  notify:
-    - Reload Nginx
-
-# Configure app
-- name: Configure virtual hosts
-  template:
-    src: nova-placement-nginx.conf.j2
-    dest: "/etc/nginx/{{ nova_nginx_conf_path }}/nova_placement_api.conf"
-  notify:
-    - Reload Nginx
-
-- name: Link to enable virtual hosts
-  file:
-    src: "/etc/nginx/sites-available/nova_placement_api.conf"
-    path: "/etc/nginx/sites-enabled/nova_placement_api.conf"
-    state: link
-  when: ansible_os_family == "Debian"
-  notify:
-    - Reload Nginx
+- name: Add NGinx vhosts
+  include_role:
+    name: nginx
+    tasks_from: configuration
+  vars:
+    nginx_sites: "{{ nova_nginx_placement_sites }}"
