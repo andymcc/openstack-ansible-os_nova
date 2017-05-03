@@ -62,24 +62,18 @@
   tags:
     - nova-config
 
+- include: nova_nginx.yml
+  when:
+    - inventory_hostname in groups['nova_nginx']
+  tags:
+    - nova-config
+
 - include: nova_init_common.yml
   tags:
     - nova-config
 
 - include: nova_service_setup.yml
   when: inventory_hostname == groups['nova_api_os_compute'][0]
-  tags:
-    - nova-config
-
-- include: nova_placement.yml
-  when:
-    - inventory_hostname in groups['nova_api_placement']
-  tags:
-    - nova-placement
-
-- include: nova_nginx.yml
-  when:
-    - inventory_hostname in groups['nova_nginx']
   tags:
     - nova-config
 

@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+- include: nova_uwsgi.yml
+  when:
+    - ansible_service_mgr == 'systemd'
+
 - include: nova_init_systemd.yml
   when:
     - ansible_service_mgr == 'systemd'

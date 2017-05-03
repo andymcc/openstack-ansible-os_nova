@@ -13,30 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Add nginx user to nova group for log writing
-  user:
-    name: "{{ nova_nginx_user_name }}"
-    groups: nova
-    append: yes
-  when:
-    - inventory_hostname in groups['nova_api_placement']
-  notify:
-    - reload nginx
-  tags:
-    - nova-install
 
-- name: Create directory for logs when dedicated nginx host
+- name: Ensure uWSGI directory exists
   file:
-    path: "/var/log/nova"
+    path: "/etc/uwsgi/"
     state: directory
-  when:
-    - inventory_hostname not in groups['nova_api_placement']
-  tags:
-    - nova-install
+    mode: "0711"
 
-- name: Add NGinx vhosts
-  include_role:
-    name: nginx
-    tasks_from: configuration
-  vars:
-    nginx_sites: "{{ nova_nginx_placement_sites }}"
+- name: Apply uWSGI configuration
+  config_template:
+    src: "nova-uwsgi.ini.j2"
+    dest: "/etc/uwsgi/{{ item.value.service_name }}.ini"
+    mode: "0744"
+    config_overrides: "{{ item.value.wsgi_overrides }}"
+    config_type: ini
+  with_dict: "{{ filtered_nova_services }}"
+  when: item.value.wsgi_app | default(False)
+  notify:
+    - Restart nova services

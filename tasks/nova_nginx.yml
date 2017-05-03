@@ -13,12 +13,49 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- include: nova_placement_nginx.yml
+- name: Add nginx user to nova group for log writing
+  user:
+    name: "{{ nova_nginx_user_name }}"
+    groups: nova
+    append: yes
+  when:
+    - inventory_hostname in groups['nova_all']
+    - inventory_hostname in groups['nginx_all']
+  notify:
+    - reload nginx
+  tags:
+    - nova-install
+
+- name: Create directory for logs when dedicated nginx host
+  file:
+    path: "/var/log/nova"
+    state: directory
+  when:
+    - inventory_hostname not in groups['nova_all']
+    - inventory_hostname in groups['nginx_all']
+  tags:
+    - nova-install
+
+- name: Add Placement NGINX vhosts
+  include_role:
+    name: nginx
+    tasks_from: configuration
+  vars:
+    nginx_sites: "{{ nova_nginx_placement_sites }}"
   when: inventory_hostname in groups['nova_api_placement_nginx']
 
-# Once we add the extra services it'll look like this:
-# - include: nova_api_os_compute_nginx.yml
-#   when: inventory_hostname in groups['nova_api_os_compute_nginx']
+- name: Add Metadata NGINX vhosts
+  include_role:
+    name: nginx
+    tasks_from: configuration
+  vars:
+    nginx_sites: "{{ nova_nginx_metadata_sites }}"
+  when: inventory_hostname in groups['nova_api_metadata_nginx']
 
-# - include: nova_api_metadata_nginx.yml
-#   when: inventory_hostname in groups['nova_api_metadata_nginx']
+- name: Add Placement NGINX vhosts
+  include_role:
+    name: nginx
+    tasks_from: configuration
+  vars:
+    nginx_sites: "{{ nova_nginx_os_compute_sites }}"
+  when: inventory_hostname in groups['nova_api_os_compute_nginx']
